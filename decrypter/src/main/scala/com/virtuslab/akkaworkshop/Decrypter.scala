@@ -21,6 +21,10 @@ object Decrypter {
 
   private var currentId = 0
 
+  private def randomAlphanumericString(n: Int): String = {
+      random.alphanumeric.take(n).mkString
+    }
+
   private def getNewId: Int = {
     this synchronized {
       val id = currentId
@@ -39,6 +43,7 @@ object Decrypter {
     }
   }
 
+
   private def decrypt(id: Int, password: String, probabilityOfFailure: Double = 0.05) = {
     Try {
       Thread.sleep(1000)
@@ -56,7 +61,7 @@ object Decrypter {
         if (clients.contains(id))
           new String(Base64.decodeBase64(password.getBytes))
         else
-          "-fj;^)%:-((oh@6#gH%dF6Ljk6%5"
+          randomAlphanumericString(20)
       }
 
     } match {
