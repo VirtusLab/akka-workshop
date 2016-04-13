@@ -49,9 +49,9 @@
 
 
 			<div class="lefty">
-				<img class="ts-icon" src="imgs/gh.png" alt="Twitter: "> ???
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> tgodzik
 
-				<img class="ts-icon" src="imgs/twitter.png" alt="Github: "> ???
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @TomekGodzik
 
 			</div>
 
@@ -60,9 +60,9 @@
 			## Krzysztof Romanowski
 
 			<div class="lefty">
-				<img class="ts-icon" src="imgs/gh.png" alt="Twitter: "> romanowski
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> romanowski
 
-				<img class="ts-icon" src="imgs/twitter.png" alt="Github: "> RomanowskiKr
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @RomanowskiKr
 
 			</div>
 
@@ -78,7 +78,7 @@
 				<script type="text/template">
 				## Akka Workshop
 
-				### Remoting, clustering and suprevision
+				### Remoting, supervision and clustering
 				</script>
 
 			</section>
@@ -98,19 +98,19 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				Server produce encrypted passwords that needs to be decrypted in client.
+				The server produces encrypted passwords that need to be decrypted in a client.
 
-				We provided encryption library, but it is not perfect.
+				We provided an encryption library, but it is far from perfect.
 				</script>
 			</section>
 
 			<section data-markdown>
 				<script type="text/template">
-				To decrypt password:
+				To decrypt a password:
 				```
 				val decrypter = new Decrypter
-				val preapared = decrypter.prepare(password)
-				val decoded = decrypter.decode(preapared)
+				val prepared = decrypter.prepare(password)
+				val decoded = decrypter.decode(prepared)
 				val decrypted = decrypter.decrypt(decoded)
 				```
 
@@ -122,9 +122,9 @@
 				<script type="text/template">
 				Decrypter flaws:
 
-				* There can be only certain amount if decrypter instances in one JVM.
+				* There can be only a certain amount of decrypter instances in one JVM.
 
-				* When one decrypter instance throws IllegalStateException then *all* instances *silently* gets corrupted (and produce bad results).
+				* When one decrypter instance fails then *all* instances *silently* get corrupted (and produce wrong results).
 				</script>
 			</section>
 
@@ -146,6 +146,8 @@
 
 				// remote sends back result:  PasswordCorrect or PasswordIncorrect
 				```
+
+				All messages are shown in the example code.
 				</script>
 			</section>
 
@@ -155,7 +157,7 @@
 
 				[headquaters:9000](http://headquaters:9000)
 
-				Try to beat Kuki or us!
+				Try to beat Ghost Kuki or us!
 				</script>
 			</section>
 
@@ -163,8 +165,13 @@
 				<script type="text/template">
 				### Useful links
 
-				* ...
-				* ...
+				* [http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html
+				* http://doc.akka.io/docs/akka/2.4.3/general/addressing.html
+				* http://doc.akka.io/docs/akka/2.4.3/scala/routing.html
+				* http://doc.akka.io/docs/akka/2.4.3/general/supervision.html
+				* http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html
+				* http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html
+
 				</script>
 			</section>
 
@@ -178,7 +185,7 @@
 				<script type="text/template">
 				## Remoting
 
-				Connect to remote actor, decrypt passwords and sent it back to us!
+				Connect to a remote actor, decrypt passwords and send them back to us!
 
 				Actor adress to use:
 				```
@@ -190,10 +197,9 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				Don't care for speed or correctness so far
+				Don't try for speed or correctness.
 
-				 we just want to see your names on leader board!
-
+				We just want to see your names on leader board!
 
 				<br>
 				```
@@ -207,10 +213,10 @@
 				<script type="text/template">
 				To implement:
 
-				* Login to the remote server (we will obtain unique Id to sign all our requests)
-				* Sending requests for new encrypted password to the central server
-				* Receiving encrypted password
-				* Decrypting given password using decryption library
+				* Login to the remote server (you will obtain unique token to sign all your requests)
+				* Sending requests for new encrypted passwords to the central server
+				* Receiving encrypted passwords
+				* Decrypting given passwords using decryption library
 				* Sending decrypted password back to the central server
 				* Receiving information if password was properly decrypted
 
@@ -239,13 +245,13 @@
 				<script type="text/template">
 				## Work parallelization
 
-				Go up in leader board!
+				Go up on the leaderboard!
 				</script>
 			</section>
 
 			<section data-markdown>
 				<script type="text/template">
-				Beware - there can be only limited no of Decryptor instances
+				Watch out! There can only be a limited number of Decryptor instances
 				</script>
 			</section>
 
@@ -253,7 +259,7 @@
 				<script type="text/template">
 				To implement:
 
-				* supervisor actor responsible for spawning multiple workers, dispatching work, and communication with central server
+				* supervisor actor responsible for spawning multiple workers, dispatching work, and communicating with a central server
 				* multiple worker actors responsible for password decryption
 
 				</script>
@@ -261,9 +267,9 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				Don't care for correctness so far
+				Don't try for correctness
 
-				we just want to see password decrypted fast!
+				We just want to dem password decrypted fast!
 				</script>
 
 			</section>
@@ -361,7 +367,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				Since we are limited inside one JVM maybe we should connect more of them and beat best times so far?
+				Since we are limited inside one JVM maybe we should connect more of them to beat best times so far?
 				</script>
 			</section>
 
@@ -371,8 +377,9 @@
 				<script type="text/template">
 				To implement:
 
-				* Cluster Singleton actor which will spawn all the workers and login to the central server
-				* changes to messages routing (varies depending on chosen strategy)
+				* Cluster Singleton actor that will login to the central server and distribute work to all workers
+				* Workers on each node connecting to that singleton actor
+				* Changes to messages routing (varies depending on chosen strategy)
 				</script>
 			</section>
 
@@ -393,9 +400,9 @@
 
 
 			<div class="lefty">
-				<img class="ts-icon" src="imgs/gh.png" alt="Twitter: "> ???
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> tgodzik
 
-				<img class="ts-icon" src="imgs/twitter.png" alt="Github: "> ???
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @TomekGodzik
 
 			</div>
 
@@ -404,9 +411,9 @@
 			## Krzysztof Romanowski
 
 			<div class="lefty">
-				<img class="ts-icon" src="imgs/gh.png" alt="Twitter: "> romanowski
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> romanowski
 
-				<img class="ts-icon" src="imgs/twitter.png" alt="Github: "> RomanowskiKr
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @RomanowskiKr
 
 			</div>
 
