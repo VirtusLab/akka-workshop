@@ -86,13 +86,13 @@
 				<script type="text/template">
 				## Plan
 
-                1. What is Akka?
-                2. The little details.
-                3. Dive into remoting.
-                4. Parallelize your work.
-                5. Handle your errors and supervise the minions.
-                6. Terminate the straglers.
-                7. Cluster!
+				1. What is Akka?
+				2. The little details.
+				3. Dive into remoting.
+				4. Parallelize your work.
+				5. Handle your errors and supervise the minions.
+				6. Terminate the straglers.
+				7. Cluster!
 
 				</script>
 			</section>
@@ -100,9 +100,9 @@
         <section>
             <section data-markdown>
                 <script type="text/template">
-                ## What is Akka?
+				## What is Akka?
 
-                ### And what the hell is all this actor talk
+				### And what the hell is all this actor talk
                 </script>
             </section>
             <section data-markdown>
@@ -127,11 +127,11 @@
             </section>
             <section data-markdown>
                 <script>
-                    ### Fault tolerance in Akka - key concepts.
+					### Fault tolerance in Akka.
 
-                    1. Let it crash.
-                    2. Multiple JVM.
-                    3. Self healing.
+					* Let it crash.
+					* Multiple JVM.
+					* Self healing.
                 </script>
             </section>
             <section data-markdown>
@@ -141,24 +141,24 @@
             </section>
             <section data-markdown>
                 <script>
-                    ### Creating actor
-                    ```
-                    val system = ActorSystem("SystemName")
-                    val actorRef = system.actorOf(Props[Worker], "ActorName")
-                    ```
+					### Creating actor
+					```
+					val system = ActorSystem("SystemName")
+					val actorRef = system.actorOf(Props[Worker], "ActorName")
+					```
                 </script>
             </section>
 
             <section data-markdown>
                 <script>
-                    ### Sample actor
-                    ```
-                    class MyActor extends Actor{
-                        def receive : Receive = {
-                            case message : String => println(message)
-                        }
-                    }
-                    ```
+					### Sample actor
+					```
+					class MyActor extends Actor{
+						def receive : Receive = {
+							case message : String => println(message)
+						}
+					}
+					```
                 </script>
             </section>
             <section data-markdown>
@@ -171,9 +171,9 @@
         <section>
             <section data-markdown>
                 <script type="text/template">
-                    ## The little details
+					## The little details
 
-                    ### What to do?
+					### What to do?
                 </script>
             </section>
 			<section data-markdown>
@@ -233,16 +233,15 @@
 
 			<section data-markdown>
 				<script type="text/template">
+				### Basics
+				```
+				git clone https://github.com/VirtusLab/akka-workshop-client
+				```
 
-                ### Basics
-                ```
-                git clone https://github.com/VirtusLab/akka-workshop-client
-                ```
-
-                ```
-                sbt run
-                ```
-                ### Leaderboard
+				```
+				sbt run
+				```
+				### Leaderboard
 
 				[headquarters:9000](http://headquarters:9000)
 
@@ -302,9 +301,9 @@
 
             <section data-markdown>
                 <script type="text/template">
-                    ### Useful links
+					### Useful links
 
-                    * (http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html)[http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html]
+					* [http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html](http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html)
 
                 </script>
             </section>
@@ -313,9 +312,9 @@
 				<script type="text/template">
 				If you stay behind:
 
-                ```
-                git checkout akka-remoting
-                ```
+				```
+				git checkout akka-remoting
+				```
 				</script>
 			</section>
 
@@ -360,9 +359,19 @@
 
             <section data-markdown>
                 <script type="text/template">
-                    ### Useful links
+				### Creating router
+				```
+				val router: ActorRef =
+					context.actorOf(RoundRobinPool(5).props(Props[Worker]))
+				```
+                </script>
 
-                    * (http://doc.akka.io/docs/akka/2.4.3/scala/routing.html)[http://doc.akka.io/docs/akka/2.4.3/scala/routing.html]
+            </section>
+            <section data-markdown>
+                <script type="text/template">
+					### Useful links
+
+					* [http://doc.akka.io/docs/akka/2.4.3/scala/routing.html](http://doc.akka.io/docs/akka/2.4.3/scala/routing.html)
 
                 </script>
             </section>
@@ -370,9 +379,10 @@
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
-                ```
-                git checkout work-parallelization
-                ```
+
+				```
+				git checkout work-parallelization
+				```
 				</script>
 			</section>
 		</section>
@@ -396,21 +406,30 @@
 				* retrying all broken computations
 				</script>
 			</section>
-
             <section data-markdown>
                 <script type="text/template">
-                    ### Useful links
-
-                    * (http://doc.akka.io/docs/akka/2.4.3/general/supervision.html)[http://doc.akka.io/docs/akka/2.4.3/general/supervision.html]
-
+				### Creating supervision strategy
+				```
+				val restartingStrategy =
+					AllForOneStrategy() { case _: Exception => Restart }
+				```
                 </script>
+
             </section>
 			<section data-markdown>
 				<script type="text/template">
+				### Useful links
+
+				* [http://doc.akka.io/docs/akka/2.4.3/general/supervision.html](http://doc.akka.io/docs/akka/2.4.3/general/supervision.html)
+
+				</script>
+			</section>
+			<section data-markdown>
+				<script type="text/template">
 				If you stay behind:
-                ```
-                    git checkout error-handling-supervision
-                ```
+				```
+					git checkout error-handling-supervision
+				```
 				</script>
 			</section>
 
@@ -451,9 +470,9 @@
 				<script type="text/template">
 				If you stay behind:
 
-                ```
-                git checkout terminating-long-running-tasks
-                ```
+				```
+				git checkout terminating-long-running-tasks
+				```
 				</script>
 			</section>
 
@@ -489,19 +508,46 @@
 			</section>
             <section data-markdown>
                 <script type="text/template">
-                    ### Useful links
+				### Useful links
 
-                    * (http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html)[http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html]
-                    * (http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html)[http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html]
+				* [http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html](http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html)
+				* [http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html](http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html)
                 </script>
             </section>
 			<section data-markdown>
 				<script type="text/template">
+					### Creating singleton
+					```
+					system.actorOf(ClusterSingletonManager.props(
+						singletonProps = RequesterActor.props,
+						terminationMessage = PoisonPill,
+						settings = ClusterSingletonManagerSettings(system)),
+						name = "consumer"
+					)
+					```
+				</script>
+
+			</section>
+			<section data-markdown>
+				<script type="text/template">
+					### Creating singleton proxy
+					```
+					val singleton = system.actorOf(ClusterSingletonProxy.props(
+						singletonManagerPath = "/user/consumer",
+						settings = ClusterSingletonProxySettings(system)),
+						name = "consumerProxy"
+					)
+					```
+				</script>
+
+			</section>
+			<section data-markdown>
+				<script type="text/template">
 				If you stay behind:
 
-                ```
-                git checkout clustering
-                ```
+				```
+				git checkout clustering
+				```
 				</script>
 			</section>
 		</section>
