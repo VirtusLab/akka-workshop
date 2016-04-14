@@ -4,8 +4,8 @@
 <head>
 	<meta charset="utf-8">
 
-	<title>Incremental Compiler: taming Scalac</title>
-	<meta name="description" content="What is and how works incremental compiler in sbt world">
+	<title>Akka workshop - taming akka</title>
+	<meta name="description" content="Akka workshop">
 	<meta name="author" content="Krzysztof Romanowski">
 
 	<meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -80,22 +80,102 @@
 
 				### Remoting, supervision and clustering
 				</script>
-
 			</section>
 
 			<section data-markdown>
 				<script type="text/template">
 				## Plan
 
-				1. Remoting
-				2. Work parallelization
-				3. Error handling, supervision
-				4. Terminating long running tasks
-				5. Clustering
+                1. What is Akka?
+                2. The little details.
+                3. Dive into remoting.
+                4. Parallelize your work.
+                5. Handle your errors and supervise the minions.
+                6. Terminate the straglers.
+                7. Cluster!
 
 				</script>
 			</section>
+        </section>
+        <section>
+            <section data-markdown>
+                <script type="text/template">
+                ## What is Akka?
 
+                ### And what the hell is all this actor talk
+                </script>
+            </section>
+            <section data-markdown>
+                <script>
+                    ## Actors can:
+                </script>
+            </section>
+            <section data-markdown>
+                <script>
+                    ### Send a finite number of messages to other actors.
+                </script>
+            </section>
+            <section data-markdown>
+                <script>
+                    ### Create a finite number of new actors.
+                </script>
+            </section>
+            <section data-markdown>
+                <script>
+                    ### Designate the behavior to be used for the next message it receives.
+                </script>
+            </section>
+            <section data-markdown>
+                <script>
+                    ### Fault tolerance in Akka - key concepts.
+
+                    1. Let it crash.
+                    2. Multiple JVM.
+                    3. Self healing.
+                </script>
+            </section>
+            <section data-markdown>
+                <script>
+                    ### Code samples
+                </script>
+            </section>
+            <section data-markdown>
+                <script>
+                    ### Creating actor
+                    ```
+                    val system = ActorSystem("SystemName")
+                    val actorRef = system.actorOf(Props[Worker], "ActorName")
+                    ```
+                </script>
+            </section>
+
+            <section data-markdown>
+                <script>
+                    ### Sample actor
+                    ```
+                    class MyActor extends Actor{
+                        def receive : Receive = {
+                            case message : String => println(message)
+                        }
+                    }
+                    ```
+                </script>
+            </section>
+            <section data-markdown>
+                <script>
+                    ### But most of what you need is in the starting script.
+                </script>
+            </section>
+        </section>
+
+        <section>
+            <section data-markdown>
+                <script type="text/template">
+                    ## The little details
+
+                    ### What to do?
+                </script>
+            </section>
 			<section data-markdown>
 				<script type="text/template">
 				The server produces encrypted passwords that need to be decrypted in a client.
@@ -153,29 +233,22 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				### Leader board
 
-				[headquaters:9000](http://headquaters:9000)
+                ### Basics
+                ```
+                git clone https://github.com/VirtusLab/akka-workshop-client
+                ```
 
-				Try to beat Ghost Kuki or us!
+                ```
+                sbt run
+                ```
+                ### Leaderboard
+
+				[headquarters:9000](http://headquarters:9000)
+
+				Try to beat John Doe or us!
 				</script>
 			</section>
-
-			<section data-markdown>
-				<script type="text/template">
-				### Useful links
-
-				* [http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html
-				* http://doc.akka.io/docs/akka/2.4.3/general/addressing.html
-				* http://doc.akka.io/docs/akka/2.4.3/scala/routing.html
-				* http://doc.akka.io/docs/akka/2.4.3/general/supervision.html
-				* http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html
-				* http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html
-
-				</script>
-			</section>
-
-
 
 		</section>
 		<!-- ################################################################################################################ -->
@@ -183,13 +256,13 @@
 		<section>
 			<section data-markdown>
 				<script type="text/template">
-				## Remoting
+				## Dive into remoting.
 
 				Connect to a remote actor, decrypt passwords and send them back to us!
 
 				Actor adress to use:
 				```
-				akka.tcp://application@headquaters:9552/user/PasswordsDistributor
+				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
 				```
 				</script>
 
@@ -197,13 +270,13 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				Don't try for speed or correctness.
+				Don't try to be the fastest or perfect.
 
-				We just want to see your names on leader board!
+				We just want to see your names on leaderboard!
 
 				<br>
 				```
-				akka.tcp://application@headquaters:9552/user/PasswordsDistributor
+				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
 				```
 				</script>
 
@@ -211,7 +284,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				To implement:
+				Implement:
 
 				* Login to the remote server (you will obtain unique token to sign all your requests)
 				* Sending requests for new encrypted passwords to the central server
@@ -222,16 +295,27 @@
 
 				<br>
 				```
-				akka.tcp://application@headquaters:9552/user/PasswordsDistributor
+				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
 				```
 				</script>
 			</section>
+
+            <section data-markdown>
+                <script type="text/template">
+                    ### Useful links
+
+                    * (http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html)[http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html]
+
+                </script>
+            </section>
 
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
 
-				[github.com/tgodzik/akka-workshop-client/tree/akka-remoting](http:/github.com/tgodzik/akka-workshop-client/tree/akka-remoting)
+                ```
+                git checkout akka-remoting
+                ```
 				</script>
 			</section>
 
@@ -243,7 +327,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				## Work parallelization
+				## Parallelize your work.
 
 				Go up on the leaderboard!
 				</script>
@@ -257,7 +341,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				To implement:
+				Implement:
 
 				* supervisor actor responsible for spawning multiple workers, dispatching work, and communicating with a central server
 				* multiple worker actors responsible for password decryption
@@ -267,18 +351,28 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				Don't try for correctness
+				Don't try to be perfect.
 
-				We just want to dem password decrypted fast!
+				We just want to the passwords decrypted fast!
 				</script>
 
 			</section>
 
+            <section data-markdown>
+                <script type="text/template">
+                    ### Useful links
+
+                    * (http://doc.akka.io/docs/akka/2.4.3/scala/routing.html)[http://doc.akka.io/docs/akka/2.4.3/scala/routing.html]
+
+                </script>
+            </section>
+
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
-
-				[github.com/tgodzik/akka-workshop-client/tree/work-parallelization](https://github.com/tgodzik/akka-workshop-client/tree/work-parallelization)
+                ```
+                git checkout work-parallelization
+                ```
 				</script>
 			</section>
 		</section>
@@ -289,25 +383,34 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				## Error handling, supervision
+				## Handle your errors and supervise the minions.
 
 				</script>
 			</section>
 
 			<section data-markdown>
 				<script type="text/template">
-				To implement:
+				Implement:
 
 				* supervision strategy, so supervisor will be able to restart all workers in case of any error
 				* retrying all broken computations
 				</script>
 			</section>
 
+            <section data-markdown>
+                <script type="text/template">
+                    ### Useful links
+
+                    * (http://doc.akka.io/docs/akka/2.4.3/general/supervision.html)[http://doc.akka.io/docs/akka/2.4.3/general/supervision.html]
+
+                </script>
+            </section>
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
-
-				[github.com/tgodzik/akka-workshop-client/tree/error-handling-supervision](https://github.com/tgodzik/akka-workshop-client/tree/error-handling-supervision)
+                ```
+                    git checkout error-handling-supervision
+                ```
 				</script>
 			</section>
 
@@ -318,7 +421,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				## Terminating long running tasks
+				## Terminate the straglers.
 
 				</script>
 			</section>
@@ -337,7 +440,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				To implement:
+				Implement:
 
 				* pattern which will allow us to stop computations in the middle of the work
 				* minor tweaks for supervision strategy
@@ -348,7 +451,9 @@
 				<script type="text/template">
 				If you stay behind:
 
-				[github.com/tgodzik/akka-workshop-client/tree/terminating-long-running-tasks](https://github.com/tgodzik/akka-workshop-client/tree/terminating-long-running-tasks)
+                ```
+                git checkout terminating-long-running-tasks
+                ```
 				</script>
 			</section>
 
@@ -360,7 +465,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				## Clustering
+				## Cluster!
 
 				</script>
 			</section>
@@ -382,12 +487,21 @@
 				* Changes to messages routing (varies depending on chosen strategy)
 				</script>
 			</section>
+            <section data-markdown>
+                <script type="text/template">
+                    ### Useful links
 
+                    * (http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html)[http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html]
+                    * (http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html)[http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html]
+                </script>
+            </section>
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
 
-				[github.com/tgodzik/akka-workshop-client/tree/clustering](https://github.com/tgodzik/akka-workshop-client/tree/clustering)
+                ```
+                git checkout clustering
+                ```
 				</script>
 			</section>
 		</section>
