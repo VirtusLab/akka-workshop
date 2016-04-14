@@ -11,9 +11,9 @@ case class PasswordDecoded(password: String) extends DecryptionState
 
 object Decrypter {
 
-  private val random = new Random()
-
   private val maxClientsCount = 4
+
+  private val random = new Random()
 
   private var clientsCount = 0
 
@@ -43,43 +43,45 @@ object Decrypter {
     }
   }
 
+  private def message =
+    """Internal state of decryptor get corrupted.
+      |This is not your fault - this is intended "problem" :)
+      |Beware that all current decryptor instances also get corrupted and will produce bad results.
+      |In order to correctly use decryptor library please create new instances.
+    """.stripMargin
 
   private def decrypt(id: Int, password: String, probabilityOfFailure: Double = 0.05) = {
-    Try {
-      Thread.sleep(1000)
+      try {
+        Thread.sleep(1000)
 
-      while (!isClientAccepted) {
-        Thread.sleep(100)
-      }
-
-      this synchronized {
-        val shouldFail = random.nextDouble() < probabilityOfFailure
-        if (shouldFail) {
-          clients = clients.empty
-          throw new IllegalStateException("Invalid internal state!")
+        while (!isClientAccepted) {
+          Thread.sleep(100)
         }
-        if (clients.contains(id))
-          new String(Base64.decodeBase64(password.getBytes))
-        else
-          randomAlphanumericString(20)
-      }
 
-    } match {
-      case Success(decrypted) =>
-        clientsCount -= 1
-        decrypted
-      case Failure(t) => synchronized {
+        this synchronized {
+          val shouldFail = random.nextDouble() < probabilityOfFailure
+          if (shouldFail) {
+            clients = clients.empty
+            throw new IllegalStateException(message)
+          }
+          if (clients.contains(id))
+            new String(Base64.decodeBase64(password.getBytes))
+          else
+            randomAlphanumericString(20)
+        }
+      } finally {
+        synchronized{
           clientsCount -= 1
         }
-        throw t
-    }
+      }
   }
 }
 
 class Decrypter {
   val id = Decrypter.getNewId
 
-  def prepare(password: String): PasswordPrepared = PasswordPrepared(Decrypter.decrypt(id, password))
+  def prepare(password: String): PasswordPrepared =
+    PasswordPrepared(Decrypter.decrypt(id, password))
 
   def decode(state: PasswordPrepared): PasswordDecoded = PasswordDecoded(Decrypter.decrypt(id, state.password))
 

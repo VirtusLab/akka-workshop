@@ -4,7 +4,7 @@ organization := "com.virtuslab"
 
 resolvers += "Workshop Repository" at "http://headquarters:8081/artifactory/libs-release-local"
 
-version := "1.0.3"
+version := "1.0.6"
 
 scalaVersion := "2.11.8"
 

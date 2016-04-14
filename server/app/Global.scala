@@ -34,7 +34,7 @@ object Global extends GlobalSettings {
       else distributor ! ValidateDecodedPassword(token, encryptedPassword, encryptedPassword)
     }
 
-    List("kuki") map {
+    List("John Doe", "Jan Kowalski") map {
       name =>
         val token = Await.result(distributor ? Register(name), timeout.duration).asInstanceOf[Registered].token
         Akka.system(app).scheduler.schedule(0.seconds, (2 + Random.nextInt(5)).seconds)(updateClient(token))

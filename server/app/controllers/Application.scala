@@ -16,14 +16,30 @@ object Application extends Controller {
 
   implicit val timeout = Timeout(5.seconds)
 
-  def index = Action {
-    Ok(views.html.index())
+  def index = Action {req => Ok(views.html.index(req.getQueryString("mode").getOrElse("all")))}
+
+
+  def orderClients(stats: Seq[Client], mode: Option[String]): Seq[Client] = {
+    mode match {
+      case Some("remote") =>
+        stats.sortBy(- _.timestamp)
+      case Some("parallel") =>
+        stats.sortBy(- _.passwordsPerMinute)
+      case other =>
+        stats.sortBy(- _.precentOfCorrect)
+    }
+
   }
 
-  def leaderboard = Action {
+
+  def leaderboard = Action.async { req =>
     import PasswordsDistributor._
-    val distributor = Akka.system.actorSelection("akka.tcp://application@headquarters:9552/user/PasswordsDistributor")
-    val statistics = Await.result(distributor ? SendMeStatistics, timeout.duration).asInstanceOf[Statistics]
-    Ok(views.html.leaderboard(statistics.clients))
+    val distributor = Akka.system.actorSelection("akka.tcp://application@localhost:9552/user/PasswordsDistributor")
+
+    distributor ? SendMeStatistics map {
+      case statistics: Statistics =>
+        val clients = orderClients(statistics.clients, req.getQueryString("order"))
+        Ok(views.html.leaderboard(clients))
+    }
   }
 }

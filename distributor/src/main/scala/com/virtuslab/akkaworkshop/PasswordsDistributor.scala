@@ -29,7 +29,7 @@ object PasswordsDistributor {
 
   case class PasswordCorrect(decryptedPassword: String) extends PDMessageResponse
 
-  case class PasswordIncorrect(decryptedPassword: String) extends PDMessageResponse
+  case class PasswordIncorrect(decryptedPassword: String, correctPassword: String) extends PDMessageResponse
 
   sealed trait PDMessageInternal
 
@@ -37,6 +37,7 @@ object PasswordsDistributor {
 
   case class Statistics(clients: Seq[Client])
 
+  case class UnknownMessage(msg: Any)
 }
 
 class Client(val name: String) {
@@ -46,15 +47,17 @@ class Client(val name: String) {
   var passwordsDecrypted = 0
   var passwordsInvalid = 0
 
-  def passwordsPerMinute = (passwordsDecrypted.toFloat / ((timestamp - registrationTimestamp).toFloat / 60)).toInt
+  def allProcessed = passwordsDecrypted + passwordsInvalid
 
-  def precentOfCorrect = ((100.0 * passwordsDecrypted) / passwordsRequested).toInt
+  def passwordsPerMinute = (allProcessed.toFloat / ((timestamp - registrationTimestamp).toFloat / 60)).toInt
+
+  def precentOfCorrect = ((100.0 * passwordsDecrypted) / allProcessed).toInt
 
   def timeFromLastAction = timestamp - lastActionTimestamp
 
   def timestamp = System.currentTimeMillis / 1000
 
-  def isActive = (timestamp - lastActionTimestamp) < 60
+  def isActive = (timestamp - lastActionTimestamp) < 120
 
   def updateTimestamp() {
     lastActionTimestamp = timestamp
@@ -97,20 +100,23 @@ class PasswordsDistributor extends Actor {
         client =>
           client.updateTimestamp()
 
-          if (decrypted == decrypt(decrypt(decrypt(encrypted)))) {
+          val correct = decrypt(decrypt(decrypt(encrypted)))
+
+          if (decrypted == correct) {
             client.passwordsDecrypted += 1
             sender ! PasswordCorrect(decrypted)
           }
           else {
             client.passwordsInvalid += 1
-            sender ! PasswordIncorrect(decrypted)
+            sender ! PasswordIncorrect(decrypted, correct)
           }
       }
 
     case SendMeStatistics =>
       clients = clients filter { case (t, c) => c.isActive}
+
       sender ! Statistics(clients.values.toSeq)
 
-    case any => sender ! ("Unknown message" -> any)
+    case any => sender ! UnknownMessage(any)
   }
 }

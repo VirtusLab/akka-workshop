@@ -1,3 +1,5 @@
+@(mode: String)
+
 <!DOCTYPE html>
 
 <html>
@@ -16,21 +18,83 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
         <script type='text/javascript' src='https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js'></script>
+        <style>
+            a {
+                padding: 7px;
+            }
+
+            .remote th:nth-child(5) {
+                display: none;
+            }
+
+
+            .remote th:nth-child(6) {
+                display: none;
+            }
+
+
+            .remote th:nth-child(7) {
+                display: none;
+            }
+
+            .remote td:nth-child(5) {
+                display: none;
+            }
+
+
+            .remote td:nth-child(6) {
+                display: none;
+            }
+
+
+            .remote td:nth-child(7) {
+                display: none;
+            }
+
+            .parallel th:nth-child(5) {
+                display: none;
+            }
+
+
+            .parallel th:nth-child(6) {
+                display: none;
+            }
+
+
+
+            .parallel td:nth-child(5) {
+                display: none;
+            }
+
+
+            .parallel td:nth-child(6) {
+                display: none;
+            }
+
+
+        </style>
     </head>
     <body>
-      <div class="dynatable-demo">
+
+      <div class="dynatable-demo @mode">
         <table id="leaderboard-table" class="table table-bordered">
           <thead>
             <th>Name</th>
             <th>Time From Last Action</th>
             <th>Passwords Requested</th>
-            <th>Passwords Decrypted</th>
+            <th>Passwords Processed</th>
             <th>Passwords Invalid</th>
-            <th>Precent Of Correct</th>
+            <th>Correctness</th>
             <th>Passwords Per Minute</th>
           <tbody>
           </tbody>
         </table>
+      </div>
+
+      <div style="margin-left: 15px">
+          <a href="/?mode=remote" class="btn-primary">Remote</a>
+          <a href="/?mode=parallel" class="btn-primary">Parallel</a>
+          <a href="/" class="btn-primary">All</a>
       </div>
       <div id="jsonModel" style="display: none;"></div>
 
