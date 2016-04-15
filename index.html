@@ -465,8 +465,22 @@
 
 			<section data-markdown>
 				<script type="text/template">
+				```scala
+				case (lastStep: MiddleStep)  :: previousSteps =>
+					val steps = LastStep(middleStep) :: lastStep :: previousSteps
+					self forward steps
+
+				case (result: LastStep)  :: _ =>
+					sender ! result
+
 				```
-				TODO example
+
+				In case of failure - just retry
+
+				```
+				override def preRestart(reason: Throwable, message: Option[Any]) {
+					message foreach { self.forward }
+				}
 				```
 				</script>
 			</section>
