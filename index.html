@@ -84,16 +84,15 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				## Plan
+				## The Plan
 
 				1. What is Akka?
-				2. The little details.
-				3. Dive into remoting.
+				2. Connect and register.
+				3. Process passwords.
 				4. Parallelize your work.
 				5. Handle your errors and supervise the minions.
 				6. Terminate the straglers.
 				7. Cluster!
-
 				</script>
 			</section>
         </section>
@@ -127,11 +126,11 @@
             </section>
             <section data-markdown>
                 <script>
-					### Fault tolerance in Akka.
+				### Fault tolerance in Akka - key concepts.
 
-					* Let it crash.
-					* Multiple JVM.
-					* Self healing.
+				1. Let it crash.
+				2. Multiple JVM.
+				3. Self healing.
                 </script>
             </section>
             <section data-markdown>
@@ -141,24 +140,27 @@
             </section>
             <section data-markdown>
                 <script>
-					### Creating actor
-					```
-					val system = ActorSystem("SystemName")
-					val actorRef = system.actorOf(Props[Worker], "ActorName")
-					```
+				### Creating actor
+				```scala
+				val system = ActorSystem("SystemName")
+
+				val actorRef = system.actorOf(Props[Worker], "ActorName")
+				```
                 </script>
             </section>
 
             <section data-markdown>
                 <script>
-					### Sample actor
-					```
-					class MyActor extends Actor{
-						def receive : Receive = {
-							case message : String => println(message)
-						}
-					}
-					```
+				### Sample actor
+				```scala
+				class MyActor extends Actor {
+
+				    def receive : Receive = {
+				        case message : String => println(message)
+				    }
+
+				}
+				```
                 </script>
             </section>
             <section data-markdown>
@@ -169,20 +171,123 @@
         </section>
 
         <section>
-            <section data-markdown>
-                <script type="text/template">
-					## The little details
+	        <section data-markdown id="register">
+		        <script type="text/template">
+		        ## Connect and register
+		        </script>
+	        </section>
 
-					### What to do?
-                </script>
-            </section>
+	        <section data-markdown>
+		        <script type="text/template">
+				### Basics
+				```
+				 > git clone https://github.com/VirtusLab/akka-workshop-client
+
+				 > sbt run
+				```
+				### Leaderboard
+
+				[headquarters:9000](http://headquarters:9000)
+		        </script>
+	        </section>
+
+	        <section data-markdown>
+		        <script type="text/template">
+				How to register? #1
+
+				```
+				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
+				```
+
+				```scala
+				val selection: ActorSelection = ???
+
+				requesterActor ! selection
+				```
+		        </script>
+	        </section>
+
+	        <section data-markdown>
+		        <script type="text/template">
+				How to register? #2
+
+				```scala
+				case remoteActorSelection: ActorSelection =>
+					// Sent register message to remote actor
+					println(s"Got remote actor selection: $remoteActorSelection")
+
+				```
+		        </script>
+	        </section>
+
+	        <section data-markdown>
+		        <script type="text/template">
+				How to register? #3
+
+				```scala
+				case Registered(token) =>
+				    // Store and use this for other requests
+				```
+		        </script>
+	        </section>
+
 			<section data-markdown>
 				<script type="text/template">
-				The server produces encrypted passwords that need to be decrypted in a client.
+				And see your name on leader board!
 
-				We provided an encryption library, but it is far from perfect.
+				![](leaderboard.png)
+
+				[headquarters:9000?mode=remote](http:/headquarters:9000?mode=remote)
+
+				Can you beat Jan or John? :)
 				</script>
 			</section>
+
+	        <section data-markdown>
+		        <script type="text/template">
+				### Useful link
+
+				[doc.akka.io/docs/akka/2.4.3/scala/remoting.html]([http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html)
+		        </script>
+	        </section>
+
+	        <section data-markdown>
+		        <script type="text/template">
+				If you stay behind:
+
+				```
+				 > git checkout akka-remoting
+				```
+		        </script>
+	        </section>
+
+        </section>
+		<!-- ################################################################################################################ -->
+
+		<section>
+
+			<section data-markdown id="process">
+				<script type="text/template">
+				## Process passwords
+				</script>
+			</section>
+
+	        <section data-markdown>
+		        <script type="text/template">
+				Request password, process and sent it back
+
+				```
+				// Request by sending SendMeEncryptedPassword(token)
+				case EncryptedPassword(encrypted) =>
+					// Decrypt and send it back using
+					// ValidateDecodedPassword(token, original, decrypted)
+
+					// Do this in loop
+					// Maybe PasswordCorrect or PasswordIncorrect
+					// Can do more then printing...
+				```
+		        </script>
+	        </section>
 
 			<section data-markdown>
 				<script type="text/template">
@@ -194,7 +299,9 @@
 				val decrypted = decrypter.decrypt(decoded)
 				```
 
-				Beware, each operation is time consuming.
+				Each operation is time consuming.
+
+				Beware! Decrypter sometimes throws exceptions.
 				</script>
 			</section>
 
@@ -204,131 +311,32 @@
 
 				* There can be only a certain amount of decrypter instances in one JVM.
 
-				* When one decrypter instance fails then *all* instances *silently* get corrupted (and produce wrong results).
+				* When one decrypter instance fails then **all** instances **silently** get corrupted (and produce wrong results).
 				</script>
 			</section>
-
-			<section data-markdown>
-				<script type="text/template">
-				How to register?
-
-				```scala
-				remote ! Register(name)
-
-				// remote send back a token, then
-
-				remote ! SendMeEncryptedPassword(token)
-
-				// remote sends back EncryptedPassword
-				// decrypt password and then
-
-				remote ! ValidateDecodedPassword(encrypted, decrypted)
-
-				// remote sends back result:  PasswordCorrect or PasswordIncorrect
-				```
-
-				All messages are shown in the example code.
-				</script>
-			</section>
-
-			<section data-markdown>
-				<script type="text/template">
-				### Basics
-				```
-				git clone https://github.com/VirtusLab/akka-workshop-client
-				```
-
-				```
-				sbt run
-				```
-				### Leaderboard
-
-				[headquarters:9000](http://headquarters:9000)
-
-				Try to beat John Doe or us!
-				</script>
-			</section>
-
-		</section>
-		<!-- ################################################################################################################ -->
-
-		<section>
-			<section data-markdown>
-				<script type="text/template">
-				## Dive into remoting.
-
-				Connect to a remote actor, decrypt passwords and send them back to us!
-
-				Actor adress to use:
-				```
-				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
-				```
-				</script>
-
-			</section>
-
-			<section data-markdown>
-				<script type="text/template">
-				Don't try to be the fastest or perfect.
-
-				We just want to see your names on leaderboard!
-
-				<br>
-				```
-				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
-				```
-				</script>
-
-			</section>
-
-			<section data-markdown>
-				<script type="text/template">
-				Implement:
-
-				* Login to the remote server (you will obtain unique token to sign all your requests)
-				* Sending requests for new encrypted passwords to the central server
-				* Receiving encrypted passwords
-				* Decrypting given passwords using decryption library
-				* Sending decrypted password back to the central server
-				* Receiving information if password was properly decrypted
-
-				<br>
-				```
-				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
-				```
-				</script>
-			</section>
-
-            <section data-markdown>
-                <script type="text/template">
-					### Useful links
-
-					* [http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html](http://doc.akka.io/docs/akka/2.4.3/scala/remoting.html)
-
-                </script>
-            </section>
 
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
 
 				```
-				git checkout akka-remoting
+				 > git checkout akka-remoting
 				```
 				</script>
 			</section>
-
 		</section>
 
 		<!-- ################################################################################################################ -->
 
 		<section>
 
-			<section data-markdown>
+			<section data-markdown id="parallel">
 				<script type="text/template">
 				## Parallelize your work.
 
 				Go up on the leaderboard!
+
+				[headquarters:9000?mode=parallel](http:/headquarters:9000?mode=parallel)
 				</script>
 			</section>
 
@@ -357,31 +365,30 @@
 
 			</section>
 
-            <section data-markdown>
-                <script type="text/template">
+			<section data-markdown>
+				<script type="text/template">
 				### Creating router
 				```
 				val router: ActorRef =
-					context.actorOf(RoundRobinPool(5).props(Props[Worker]))
+				context.actorOf(RoundRobinPool(5).props(Props[Worker]))
 				```
-                </script>
+				</script>
 
-            </section>
+			</section>
+
             <section data-markdown>
                 <script type="text/template">
-					### Useful links
+				### Useful link
 
-					* [http://doc.akka.io/docs/akka/2.4.3/scala/routing.html](http://doc.akka.io/docs/akka/2.4.3/scala/routing.html)
-
+				[doc.akka.io/docs/akka/2.4.3/scala/routing.html](http://doc.akka.io/docs/akka/2.4.3/scala/routing.html)
                 </script>
             </section>
 
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
-
 				```
-				git checkout work-parallelization
+				 > git checkout work-parallelization
 				```
 				</script>
 			</section>
@@ -391,7 +398,7 @@
 
 		<section>
 
-			<section data-markdown>
+			<section data-markdown id="errors">
 				<script type="text/template">
 				## Handle your errors and supervise the minions.
 
@@ -418,17 +425,16 @@
             </section>
 			<section data-markdown>
 				<script type="text/template">
-				### Useful links
+				### Useful link
 
-				* [http://doc.akka.io/docs/akka/2.4.3/general/supervision.html](http://doc.akka.io/docs/akka/2.4.3/general/supervision.html)
-
+				[doc.akka.io/docs/akka/2.4.3/general/supervision.html](http://doc.akka.io/docs/akka/2.4.3/general/supervision.html)
 				</script>
 			</section>
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
 				```
-					git checkout error-handling-supervision
+				 > git checkout error-handling-supervision
 				```
 				</script>
 			</section>
@@ -459,10 +465,9 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				Implement:
-
-				* pattern which will allow us to stop computations in the middle of the work
-				* minor tweaks for supervision strategy
+				```
+				TODO example
+				```
 				</script>
 			</section>
 
@@ -471,7 +476,7 @@
 				If you stay behind:
 
 				```
-				git checkout terminating-long-running-tasks
+				 > git checkout terminating-long-running-tasks
 				```
 				</script>
 			</section>
@@ -510,8 +515,8 @@
                 <script type="text/template">
 				### Useful links
 
-				* [http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html](http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html)
-				* [http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html](http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html)
+				* [doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html](http://doc.akka.io/docs/akka/2.4.3/scala/cluster-usage.html)
+				* [doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html](http://doc.akka.io/docs/akka/2.4.3/scala/cluster-singleton.html)
                 </script>
             </section>
 			<section data-markdown>
@@ -546,7 +551,7 @@
 				If you stay behind:
 
 				```
-				git checkout clustering
+				 > git checkout clustering
 				```
 				</script>
 			</section>
