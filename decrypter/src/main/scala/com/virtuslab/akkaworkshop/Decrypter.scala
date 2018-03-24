@@ -1,7 +1,8 @@
 package com.virtuslab.akkaworkshop
 
 import org.apache.commons.codec.binary.Base64
-import scala.util.{Failure, Success, Random, Try}
+
+import scala.util.Random
 
 sealed trait DecryptionState
 
@@ -21,9 +22,8 @@ object Decrypter {
 
   private var currentId = 0
 
-  private def randomAlphanumericString(n: Int): String = {
-      random.alphanumeric.take(n).mkString
-    }
+  private def randomAlphanumericString(n: Int): String =
+    random.alphanumeric.take(n).mkString
 
   private def getNewId: Int = {
     this synchronized {
@@ -51,29 +51,29 @@ object Decrypter {
     """.stripMargin
 
   private def decrypt(id: Int, password: String, probabilityOfFailure: Double = 0.05) = {
-      try {
-        Thread.sleep(1000)
+    try {
+      Thread.sleep(1000)
 
-        while (!isClientAccepted) {
-          Thread.sleep(100)
-        }
-
-        this synchronized {
-          val shouldFail = random.nextDouble() < probabilityOfFailure
-          if (shouldFail) {
-            clients = clients.empty
-            throw new IllegalStateException(message)
-          }
-          if (clients.contains(id))
-            new String(Base64.decodeBase64(password.getBytes))
-          else
-            randomAlphanumericString(20)
-        }
-      } finally {
-        synchronized{
-          clientsCount -= 1
-        }
+      while (!isClientAccepted) {
+        Thread.sleep(100)
       }
+
+      this synchronized {
+        val shouldFail = random.nextDouble() < probabilityOfFailure
+        if (shouldFail) {
+          clients = clients.empty
+          throw new IllegalStateException(message)
+        }
+        if (clients.contains(id))
+          new String(Base64.decodeBase64(password.getBytes))
+        else
+          randomAlphanumericString(20)
+      }
+    } finally {
+      synchronized {
+        clientsCount -= 1
+      }
+    }
   }
 }
 
