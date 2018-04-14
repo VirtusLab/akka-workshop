@@ -45,33 +45,41 @@
 
 		<section data-markdown>
 			<script type="text/template">
-			## Tomasz Godzik
+			<img class="ts-icon" src="imgs/vl.png" alt="Virtus Lab"/>
+
+			<div class="lefty">
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> pkukielka
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @pkukielka
+			</div>
+
+			## Piotr Kukiełka
+
+			<div class="lefty">
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> liosedhel
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @liosedhel
+			</div>
+
+			## Krzysztof Borowski
+
+			<div class="lefty">
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> romanowski
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @RomanowskiKr
+			</div>
+
+			## Krzysztof Romanowski
 
 
 			<div class="lefty">
 				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> tgodzik
-
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @TomekGodzik
-
 			</div>
 
-			<img class="ts-icon" src="imgs/vl.png" alt="Virtus Lab"/>
-
-			## Krzysztof Romanowski
-
-			<div class="lefty">
-				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> romanowski
-
-				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @RomanowskiKr
-
-			</div>
-
-			<img class="ts-icon" src="imgs/vl.png" alt="Virtus Lab"/>
+			## Tomasz Godzik
 
 			</script>
 		</section>
 
-		<!-- ################################################################################################################ -->
+		<!-- ############################################################################################################### -->
 
 		<section>
 			<section data-markdown>
@@ -193,41 +201,69 @@
 
 	        <section data-markdown>
 		        <script type="text/template">
-				How to register? #1
+				### Find remote actor
 
-				```
-				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
-				```
 
 				```scala
 				val selection: ActorSelection = ???
 
 				requesterActor ! selection
 				```
+
+				Actor address:
+				```
+				akka.tcp://application@headquarters:9552/user/PasswordsDistributor
+				```
+
+
+				Finding actors by path: https://doc.akka.io/docs/akka/2.5.11/general/addressing.html
 		        </script>
 	        </section>
 
 	        <section data-markdown>
 		        <script type="text/template">
-				How to register? #2
+				### Send registration message
 
 				```scala
-				case remoteActorSelection: ActorSelection =>
-					// Sent register message to remote actor
-					println(s"Got remote actor selection: $remoteActorSelection")
-
+			    case remoteActorSelection: ActorSelection =>
+			      // TODO Register yourself by sending Register("your nick") to remote actor from selection
+			      // HINT: Using actor ref instead of actor selection is recommended
+			      println(s"Got remote actor selection: $remoteActorSelection")
 				```
+
+				We can send messages directly to actor selection but it's not recommended.
+
 		        </script>
 	        </section>
 
 	        <section data-markdown>
 		        <script type="text/template">
-				How to register? #3
+				### Get Actor Reference
+
+				How can we obtain ActorRef instead?
+
+				* using `sender()` method on any message received from `ActorSelection`
+				* sending `Identify` message to `ActorSelection`
+				* using `resolveOne` method of the `ActorSelection`
+
+				https://doc.akka.io/docs/akka/2.5.11/actors.html#identifying-actors-via-actor-selection
+
+		        </script>
+	        </section>
+
+	        <section data-markdown>
+		        <script type="text/template">
+				### Obtain unique ID
 
 				```scala
 				case Registered(token) =>
 				    // Store and use this for other requests
 				```
+
+				Mutable state inside the actor is fine, but can we avoid it?
+				Maybe we can just become actor who knows his ID?
+
+				https://doc.akka.io/docs/akka/2.5.11.5/scala/actors.html#become-unbecome
 		        </script>
 	        </section>
 
@@ -245,14 +281,6 @@
 
 	        <section data-markdown>
 		        <script type="text/template">
-				### Useful link
-
-				[doc.akka.io/docs/akka/2.5.11/remoting.html](https://doc.akka.io/docs/akka/2.5.11/remoting.html)
-		        </script>
-	        </section>
-
-	        <section data-markdown>
-		        <script type="text/template">
 				If you stay behind:
 
 				```
@@ -262,7 +290,7 @@
 	        </section>
 
         </section>
-		<!-- ################################################################################################################ -->
+		<!-- ############################################################################################################### -->
 
 		<section>
 
@@ -274,25 +302,32 @@
 
 	        <section data-markdown>
 		        <script type="text/template">
-				Request password, process and sent it back
+				### Request password
 
+				```scala
+				remote ! SendMeEncryptedPassword(token)
 				```
-				// Request by sending SendMeEncryptedPassword(token)
+		        </script>
+	        </section>
+
+	        <section data-markdown>
+		        <script type="text/template">
+				### Receive password
+
+				```scala
 				case EncryptedPassword(encrypted) =>
 					// Decrypt and send it back using
 					// ValidateDecodedPassword(token, original, decrypted)
-
-					// Do this in loop
-					// Maybe PasswordCorrect or PasswordIncorrect
-					// Can do more then printing...
 				```
+
 		        </script>
 	        </section>
 
 			<section data-markdown>
 				<script type="text/template">
-				To decrypt a password:
-				```
+				### Decrypt password
+
+				```scala
 				val decrypter = new Decrypter
 				val prepared = decrypter.prepare(password)
 				val decoded = decrypter.decode(prepared)
@@ -311,7 +346,24 @@
 
 				* There can be only a certain amount of decrypter instances in one JVM.
 
-				* When one decrypter instance fails then **all** instances **silently** get corrupted (and produce wrong results).
+				* When one decrypter instance fails then **all** instances **silently** get corrupted (and produces wrong results).
+				</script>
+			</section>
+
+			<section data-markdown>
+				<script type="text/template">
+				### Verify result
+
+				```scala
+				remote ! ValidateDecodedPassword(token, encrypted, decrypted)
+				```
+
+				Possible responses:
+
+				```scala
+				case PasswordCorrect(decryptedPassword) => ???
+				case PasswordIncorrect(decryptedPassword, correctPassword) => ???
+				```
 				</script>
 			</section>
 
@@ -326,33 +378,32 @@
 			</section>
 		</section>
 
-		<!-- ################################################################################################################ -->
+		<!-- ############################################################################################################### -->
 
 		<section>
 
 			<section data-markdown id="parallel">
 				<script type="text/template">
-				## Parallelize your work.
+				## Parallelize your work
 
 				Go up on the leaderboard!
 
-				[headquarters:9000?mode=parallel](http:/headquarters:9000?mode=parallel)
+				http:/headquarters:9000?mode=parallel
 				</script>
 			</section>
 
 			<section data-markdown>
 				<script type="text/template">
-				Watch out! There can only be a limited number of Decryptor instances
-				</script>
-			</section>
-
-			<section data-markdown>
-				<script type="text/template">
-				Implement:
+				### Implementation goals
 
 				* supervisor actor responsible for spawning multiple workers, dispatching work, and communicating with a central server
 				* multiple worker actors responsible for password decryption
+				</script>
+			</section>
 
+			<section data-markdown>
+				<script type="text/template">
+				Watch out! There can only be a limited number of Decryptor instances.
 				</script>
 			</section>
 
@@ -360,29 +411,67 @@
 				<script type="text/template">
 				Don't try to be perfect.
 
-				We just want to the passwords decrypted fast!
+				We just want to decrypt passwords faster!
 				</script>
 
 			</section>
 
 			<section data-markdown>
 				<script type="text/template">
+				### Design - router
+
+				Responsible for:
+
+				* logging to server
+				* spawning multiple workers
+				* requesting encrypted passwords from server
+				* dispatching work to workers
+				* sending results (decrypted passwords) to server
+
+				</script>
+			</section>
+
+			<section data-markdown>
+				<script type="text/template">
+				### Design - worker
+
+				Responsible for:
+
+				* getting encrypted passwords from router
+				* decrypting passwords
+				* sending them back to router
+
+				</script>
+			</section>
+
+			<section data-markdown>
+				<script type="text/template">
 				### Creating router
-				```
+
+				```scala
 				val router: ActorRef =
 				context.actorOf(RoundRobinPool(5).props(Props[Worker]))
 				```
+
+				http://doc.akka.io/docs/akka/2.5.11/scala/routing.html
 				</script>
 
 			</section>
 
-            <section data-markdown>
-                <script type="text/template">
-				### Useful link
+			<section data-markdown>
+				<script type="text/template">
+				### Creating worker
 
-				[doc.akka.io/docs/akka/2.5.11/routing.html](https://doc.akka.io/docs/akka/2.5.11/routing.html)
-                </script>
-            </section>
+				Worker is just normal akka actor.
+
+				What will happen when exception will be thrown from Decryptor?
+				How can we deal with that?
+
+				* Ordinary exception catching for starter
+				* Something more sophisticated later
+				</script>
+
+			</section>
 
 			<section data-markdown>
 				<script type="text/template">
@@ -394,40 +483,63 @@
 			</section>
 		</section>
 
-		<!-- ################################################################################################################ -->
+		<!-- ############################################################################################################### -->
 
 		<section>
 
 			<section data-markdown id="errors">
 				<script type="text/template">
-				## Handle your errors and supervise the minions.
+				## Handle your errors and supervise the minions
 
 				</script>
 			</section>
 
 			<section data-markdown>
 				<script type="text/template">
-				Implement:
+				### Implementation goals
 
-				* supervision strategy, so supervisor will be able to restart all workers in case of any error
+				* supervisor which can restart all workers in case of any error
 				* retrying all broken computations
 				</script>
 			</section>
             <section data-markdown>
                 <script type="text/template">
 				### Creating supervision strategy
-				```
+
+				We want to restart all workers if any of them will fail.
+
+				```scala
 				val restartingStrategy =
 					AllForOneStrategy() { case _: Exception => Restart }
+				val workers =
+					context.actorOf(RoundRobinPool(
+						workersNumber,
+						supervisorStrategy = restartingStrategy
+					).props(Worker.props))
 				```
+
+				https://doc.akka.io/docs/akka/2.5.11/general/supervision.html
                 </script>
 
             </section>
 			<section data-markdown>
 				<script type="text/template">
-				### Useful link
+				### Removing exception handling
 
-				[doc.akka.io/docs/akka/2.5.11/general/supervision.html](https://doc.akka.io/docs/akka/2.5.11/general/supervision.html)
+				Supervisor will restart worker, but what about currently processing password?
+				Can we try to process it again?
+
+				We can get notified when we fail:
+
+				```scala
+				override def preRestart(reason: Throwable, message: Option[Any])
+				```
+
+				And we can send any message to ourselves:
+
+				```scala
+				self forward message
+				```
 				</script>
 			</section>
 			<section data-markdown>
@@ -440,19 +552,34 @@
 			</section>
 
 		</section>
-		<!-- ################################################################################################################ -->
+		<!-- ############################################################################################################### -->
 
 		<section>
 
 			<section data-markdown>
 				<script type="text/template">
-				## Terminate the straglers.
+				## Terminate the stragglers
 
 				</script>
 			</section>
 
 			<section data-markdown>
 				<script type="text/template">
+				### Problem
+
+				To decrypt password we need three steeps, all of them are time consuming.
+
+				If any worker will break there is no point in continuing computations without restarting the state.
+
+				Can we break others actors computations in the middle?
+
+				</script>
+			</section>
+
+			<section data-markdown>
+				<script type="text/template">
+				### Solution
+
 				[letitcrash.com/post/37854845601/little-pattern-message-based-loop](http://letitcrash.com/post/37854845601/little-pattern-message-based-loop)
 
 				TL;DR:
@@ -465,14 +592,15 @@
 
 			<section data-markdown>
 				<script type="text/template">
+				Fibonacci numbers example:
+
 				```scala
-				case (lastStep: MiddleStep)  :: previousSteps =>
-					val steps = LastStep(middleStep) :: lastStep :: previousSteps
-					self forward steps
-
-				case (result: LastStep)  :: _ =>
-					sender ! result
-
+				case (max, result@(fibbCurrent :: fibbPrev)) =>
+					if (fibbCurrent >= max) sender ! result
+					else {
+						val steps = (fibbCurrent + fibbPrev) :: result
+						self forward (max, steps
+					}
 				```
 
 				In case of failure - just retry
@@ -497,7 +625,7 @@
 
 		</section>
 
-		<!-- ################################################################################################################ -->
+		<!-- ############################################################################################################### -->
 
 		<section>
 
@@ -518,7 +646,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				To implement:
+				### Implementation goals
 
 				* Cluster Singleton actor that will login to the central server and distribute work to all workers
 				* Workers on each node connecting to that singleton actor
@@ -529,8 +657,8 @@
                 <script type="text/template">
 				### Useful links
 
-				* [doc.akka.io/docs/akka/2.5.11/cluster-usage.html](https://doc.akka.io/docs/akka/2.5.11/cluster-usage.html)
-				* [doc.akka.io/docs/akka/2.5.11/cluster-singleton.html](https://doc.akka.io/docs/akka/2.5.11/cluster-singleton.html)
+				* http://doc.akka.io/docs/akka/2.5.11/scala/cluster-usage.html
+				* http://doc.akka.io/docs/akka/2.5.11/scala/cluster-singleton.html
                 </script>
             </section>
 			<section data-markdown>
@@ -571,37 +699,45 @@
 			</section>
 		</section>
 
-		<!-- ################################################################################################################ -->
+		<!-- ############################################################################################################### -->
 
 		<section data-markdown>
 			<script type="text/template">
-			## Tomasz Godzik
+			<img class="ts-icon" src="imgs/vl.png" alt="Virtus Lab"/>
+
+			<div class="lefty">
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> pkukielka
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @pkukielka
+			</div>
+
+			## Piotr Kukiełka
+
+			<div class="lefty">
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> liosedhel
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @liosedhel
+			</div>
+
+			## Krzysztof Borowski
+
+			<div class="lefty">
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> romanowski
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @RomanowskiKr
+			</div>
+
+			## Krzysztof Romanowski
 
 
 			<div class="lefty">
 				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> tgodzik
-
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @TomekGodzik
-
 			</div>
 
-			<img class="ts-icon" src="imgs/vl.png" alt="Virtus Lab"/>
-
-			## Krzysztof Romanowski
-
-			<div class="lefty">
-				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> romanowski
-
-				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @RomanowskiKr
-
-			</div>
-
-			<img class="ts-icon" src="imgs/vl.png" alt="Virtus Lab"/>
+			## Tomasz Godzik
 
 			</script>
 		</section>
 
-		<!-- ################################################################################################################ -->
+		<!-- ############################################################################################################### -->
 	</div>
 
 </div>
