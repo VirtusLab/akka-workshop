@@ -6,7 +6,7 @@
 
 	<title>Akka workshop - taming akka</title>
 	<meta name="description" content="Akka workshop">
-	<meta name="author" content="Krzysztof Romanowski">
+	<meta name="author" content="VLTeam">
 
 	<meta name="apple-mobile-web-app-capable" content="yes"/>
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -52,21 +52,21 @@
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @pkukielka
 			</div>
 
-			## Piotr Kukiełka
+			#### Piotr Kukiełka
 
 			<div class="lefty">
 				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> liosedhel
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @liosedhel
 			</div>
 
-			## Krzysztof Borowski
+			#### Krzysztof Borowski
 
 			<div class="lefty">
 				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> romanowski
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @RomanowskiKr
 			</div>
 
-			## Krzysztof Romanowski
+			#### Krzysztof Romanowski
 
 
 			<div class="lefty">
@@ -74,7 +74,14 @@
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @TomekGodzik
 			</div>
 
-			## Tomasz Godzik
+			#### Tomasz Godzik
+
+			<div class="lefty">
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> btomala
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @btomala
+			</div>
+
+			#### Bartłomiej Tomala
 
 			</script>
 		</section>
@@ -114,23 +121,40 @@
             </section>
             <section data-markdown>
                 <script>
-                    ## Actors can:
+                    ## Actors
                 </script>
             </section>
+			<section data-markdown>
+				<script type="text/template">
+					###Have a state and some behaviour.
+
+					![](actor_with_state.png)
+
+				</script>
+			</section>
             <section data-markdown>
-                <script>
-                    ### Send a finite number of messages to other actors.
-                </script>
+				<script type="text/template">
+					###Can send a finite number of messages to other actors.
+
+					![](sending_messages.png)
+
+				</script>
             </section>
             <section data-markdown>
-                <script>
-                    ### Create a finite number of new actors.
-                </script>
+				<script type="text/template">
+					### Can create a finite number of new actors.
+
+					![](finite_number_of_new_actors.png)
+
+				</script>
             </section>
             <section data-markdown>
-                <script>
-                    ### Designate the behavior to be used for the next message it receives.
-                </script>
+				<script type="text/template">
+					### Designate the behavior to be used for the next message it receives.
+
+					![](change_behaviour.png)
+
+				</script>
             </section>
             <section data-markdown>
                 <script>
@@ -146,22 +170,13 @@
                     ### Code samples
                 </script>
             </section>
-            <section data-markdown>
-                <script>
-				### Creating actor
-				```scala
-				val system = ActorSystem("SystemName")
-
-				val actorRef = system.actorOf(Props[Worker], "ActorName")
-				```
-                </script>
-            </section>
-
-            <section data-markdown>
-                <script>
+			<section data-markdown>
+				<script>
 				### Sample actor
 				```scala
 				class MyActor extends Actor {
+
+					var someState:Int = 0
 
 				    def receive : Receive = {
 				        case message : String => println(message)
@@ -169,8 +184,20 @@
 
 				}
 				```
+				</script>
+			</section>
+            <section data-markdown>
+                <script>
+				### Creating actor
+				```scala
+				val system = ActorSystem("SystemName")
+
+				val actorRef = system.actorOf(new Worker("ActorName"))
+				```
                 </script>
             </section>
+
+
             <section data-markdown>
                 <script>
                     ### But most of what you need is in the starting script.
@@ -220,6 +247,36 @@
 		        </script>
 	        </section>
 
+			<section data-markdown>
+				<script type="text/template">
+					### Enable remote communication
+
+					Dependency:
+					```scala
+					"com.typesafe.akka" %% "akka-remote" % "$akka.version$"
+					```
+
+					Remote akka configuration:
+					```
+					akka {
+						actor {
+							provider = remote
+						}
+						remote {
+							enabled-transports = ["akka.remote.netty.tcp"]
+							netty.tcp {
+								hostname = "127.0.0.1"
+								port = 2552
+							}
+						}
+					}
+					```
+
+
+					More info: https://doc.akka.io/docs/akka/2.5/remoting.html
+				</script>
+			</section>
+
 	        <section data-markdown>
 		        <script type="text/template">
 				### Send registration message
@@ -235,6 +292,13 @@
 
 		        </script>
 	        </section>
+			<section data-markdown>
+				<script type="text/template">
+					### Register
+
+					![](communication_step_1.png)
+				</script>
+			</section>
 
 	        <section data-markdown>
 		        <script type="text/template">
@@ -279,16 +343,6 @@
 				</script>
 			</section>
 
-	        <section data-markdown>
-		        <script type="text/template">
-				If you stay behind:
-
-				```
-				 > git checkout akka-remoting
-				```
-		        </script>
-	        </section>
-
         </section>
 		<!-- ############################################################################################################### -->
 
@@ -297,6 +351,14 @@
 			<section data-markdown id="process">
 				<script type="text/template">
 				## Process passwords
+				</script>
+			</section>
+
+			<section data-markdown>
+				<script type="text/template">
+					### Get password
+
+					![](communication_step_2.png)
 				</script>
 			</section>
 
@@ -342,11 +404,12 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				Decrypter flaws:
+				### Decrypter flaws:
 
 				* There can be only a certain amount of decrypter instances in one JVM.
+				* When one decrypter instance fails then **all** instances **silently** get corrupted and produce wrong results
+				(Warning: you have to redo last step after any instance failure to have 100% correctness).
 
-				* When one decrypter instance fails then **all** instances **silently** get corrupted (and produces wrong results).
 				</script>
 			</section>
 
@@ -418,7 +481,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				### Design - router
+				### Design - RequesterActor
 
 				Responsible for:
 
@@ -433,20 +496,7 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				### Design - worker
-
-				Responsible for:
-
-				* getting encrypted passwords from router
-				* decrypting passwords
-				* sending them back to router
-
-				</script>
-			</section>
-
-			<section data-markdown>
-				<script type="text/template">
-				### Creating router
+				### Creating akka router
 
 				```scala
 				val router: ActorRef =
@@ -460,7 +510,20 @@
 
 			<section data-markdown>
 				<script type="text/template">
-				### Creating worker
+				### Design - Worker
+
+				Responsible for:
+
+				* getting encrypted passwords from router (RequesterActor)
+				* decrypting passwords
+				* sending them back to router (RequesterActor)
+
+				</script>
+			</section>
+
+			<section data-markdown>
+				<script type="text/template">
+				### Creating Worker
 
 				Worker is just normal akka actor.
 
@@ -595,11 +658,11 @@
 				Fibonacci numbers example:
 
 				```scala
-				case (max, result@(fibbCurrent :: fibbPrev)) =>
+				case (max, result@(fibbCurrent :: fibbPrev :: tail)) =>
 					if (fibbCurrent >= max) sender ! result
 					else {
 						val steps = (fibbCurrent + fibbPrev) :: result
-						self forward (max, steps
+						self forward (max, steps)
 					}
 				```
 
@@ -653,6 +716,12 @@
 				* Changes to messages routing (varies depending on chosen strategy)
 				</script>
 			</section>
+			<section>
+				Architecture Example
+
+				<img class="stretch" alt="clustering" src="clustering.png"/>
+
+			</section>
             <section data-markdown>
                 <script type="text/template">
 				### Useful links
@@ -686,8 +755,36 @@
 					)
 					```
 				</script>
-
 			</section>
+			<section data-markdown>
+				<script type="text/templates">
+				### Clustering configuration
+				```
+				akka {
+					actor {
+						provider = "akka.cluster.ClusterActorRefProvider"
+					}
+					remote {
+						enabled-transports = ["akka.remote.netty.tcp"]
+						untrusted-mode = off
+						log-sent-messages = on
+						log-received-messages = on
+						netty.tcp {
+							hostname = "127.0.0.1"
+							port = 2553
+						}
+					}
+					cluster {
+						seed-nodes = [
+							"akka.tcp://RequesterSystem@127.0.0.1:2553"
+						]
+					}
+					loglevel = INFO
+				}
+				```
+				</script>
+			</section>
+
 			<section data-markdown>
 				<script type="text/template">
 				If you stay behind:
@@ -710,21 +807,21 @@
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @pkukielka
 			</div>
 
-			## Piotr Kukiełka
+			#### Piotr Kukiełka
 
 			<div class="lefty">
 				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> liosedhel
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @liosedhel
 			</div>
 
-			## Krzysztof Borowski
+			#### Krzysztof Borowski
 
 			<div class="lefty">
 				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> romanowski
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @RomanowskiKr
 			</div>
 
-			## Krzysztof Romanowski
+			#### Krzysztof Romanowski
 
 
 			<div class="lefty">
@@ -732,7 +829,14 @@
 				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @TomekGodzik
 			</div>
 
-			## Tomasz Godzik
+			#### Tomasz Godzik
+
+			<div class="lefty">
+				<img class="ts-icon" src="imgs/gh.png" alt="Github: "> btomala
+				<img class="ts-icon" src="imgs/twitter.png" alt="Twitter: "> @btomala
+			</div>
+
+			#### Bartłomiej Tomala
 
 			</script>
 		</section>
