@@ -4,8 +4,6 @@ organization := "com.virtuslab"
 
 version := "2.0.0"
 
-resolvers += "Workshop Repository" at "http://headquarters:8081/artifactory/libs-release-local"
-
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.12.5"
