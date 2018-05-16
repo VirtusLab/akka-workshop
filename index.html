@@ -228,6 +228,31 @@
 
 	        <section data-markdown>
 		        <script type="text/template">
+				### Configure remoteing
+
+
+				```scala
+				akka {
+					actor {
+						provider = remote
+					}
+					remote {
+						enabled-transports = ["akka.remote.netty.tcp"]
+						netty.tcp {
+							hostname = "headquarters"
+							port = 9552
+						}
+					}
+				}
+				```
+
+
+				More about remoting: https://doc.akka.io/docs/akka/2.5.11/remoting.html
+		        </script>
+	        </section>
+
+	        <section data-markdown>
+		        <script type="text/template">
 				### Find remote actor
 
 
@@ -327,7 +352,7 @@
 				Mutable state inside the actor is fine, but can we avoid it?
 				Maybe we can just become actor who knows his ID?
 
-				https://doc.akka.io/docs/akka/2.5.11.5/scala/actors.html#become-unbecome
+				https://doc.akka.io/docs/akka/2.5.11/scala/actors.html#become-unbecome
 		        </script>
 	        </section>
 
