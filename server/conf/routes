@@ -8,3 +8,7 @@ GET     /leaderboard.json           controllers.HomeController.leaderboard
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(file)
+
+POST    /register                   controllers.HomeController.register
+POST    /send-encrypted-password    controllers.HomeController.sendEncryptedPassword
+POST    /validate                   controllers.HomeController.validate
