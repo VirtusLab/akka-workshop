@@ -36,7 +36,7 @@ class StartDistributor @Inject()(actorSystem: ActorSystem) {
         distributor ! ValidateDecodedPassword(token, encryptedPassword, encryptedPassword)
     }
 
-    List("John Doe", "Jan Kowalski") map { name =>
+    List("John Doe - JAVA", "Jan Kowalski - JAVA") map { name =>
       val token = Await
         .result(distributor ? Register(name), timeout.duration)
         .asInstanceOf[Registered]

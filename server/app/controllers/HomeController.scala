@@ -8,13 +8,14 @@ import akka.util.Timeout
 import com.virtuslab.akkaworkshop.PasswordsDistributor._
 import com.virtuslab.akkaworkshop._
 import javax.inject._
+import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class HomeController @Inject()(actorSystem: ActorSystem, cc: ControllerComponents)(
+class HomeController @Inject()(actorSystem: ActorSystem, cc: ControllerComponents, config: Configuration)(
   implicit assetsFinder: AssetsFinder,
   ec: ExecutionContext
 ) extends AbstractController(cc) {
@@ -22,7 +23,9 @@ class HomeController @Inject()(actorSystem: ActorSystem, cc: ControllerComponent
   import JsonModelFormats._
 
   implicit val timeout = Timeout(5.seconds)
-  val distributor      = actorSystem.actorSelection("akka.tcp://application@headquarters:9552/user/PasswordsDistributor")
+
+  val distributor      = actorSystem.actorSelection(
+    s"akka.tcp://application@localhost:9552/user/PasswordsDistributor")
 
   def index: Action[AnyContent] = Action { req =>
     Ok(views.html.index(req.getQueryString("mode").getOrElse("all")))
