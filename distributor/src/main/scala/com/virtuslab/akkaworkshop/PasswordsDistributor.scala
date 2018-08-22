@@ -13,7 +13,7 @@ object PasswordsDistributor {
 
   sealed trait PDMessageRequest
 
-  case class Register(name: String) extends PDMessageResponse
+  case class Register(name: String, team: String) extends PDMessageResponse
 
   case class SendMeEncryptedPassword(token: Token) extends PDMessageResponse
 
@@ -40,7 +40,7 @@ object PasswordsDistributor {
   case class UnknownMessage(msg: Any)
 }
 
-class Client(val name: String) {
+case class Client(name: String, team: String) {
   val registrationTimestamp = timestamp
   var lastActionTimestamp = timestamp
   var passwordsRequested = 0
@@ -74,11 +74,11 @@ class PasswordsDistributor extends Actor {
   def randomString(n: Int) = new String(Seq.fill(n)(Random.nextPrintableChar).toArray)
 
   def receive = {
-    case Register(name) =>
+    case Register(name, team) =>
       val token = randomString(32)
-      val client = new Client(name)
+      val client = new Client(name, team)
       client.updateTimestamp()
-      clients = clients + ((token, client))
+      clients = clients.filter(_._2.name != name) + ((token, client))
       sender ! Registered(token)
 
     case SendMeEncryptedPassword(token) =>

@@ -7,6 +7,7 @@
   @for(c <- clients) {
     {
       "name": "@c.name",
+      "team": "@c.team",
       "timeFromLastAction": "@c.timeFromLastAction seconds ago",
       "passwordsRequested": "@c.passwordsRequested",
       "passwordsProcessed": "@c.allProcessed",
@@ -17,6 +18,7 @@
   }
     {
       "name": "",
+      "team": "",
       "timeFromLastAction": "",
       "passwordsRequested": "",
       "passwordsProcessed": "",
